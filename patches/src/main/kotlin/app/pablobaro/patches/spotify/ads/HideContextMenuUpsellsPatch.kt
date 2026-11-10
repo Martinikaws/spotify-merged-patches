@@ -30,20 +30,28 @@ val hideContextMenuUpsellsPatch = bytecodePatch(
         // classes against pinned hashes, which must see the classes before this patch edits them.
         // The item view model is ViewModel(available, enabled, isPremiumUpsell, ...).
         // isPremiumUpsell is the second boolean field in dex order.
-        val viewModelType = GetViewModelFingerprint.originalMethod.returnType
-        val isPremiumUpsell = classDefBy(viewModelType).fields.filter { it.type == "Z" }.getOrNull(1)
-            ?: throw PatchException("Could not find the isPremiumUpsell field in $viewModelType")
+        // On Spotify 9.1.80 getViewModel is obfuscated and the fingerprint does not match.
+        // The extension then finds the view model and the field by reflection at runtime.
+        val viewModelType = try {
+            GetViewModelFingerprint.originalMethod.returnType
+        } catch (_: PatchException) {
+            null
+        }
+        if (viewModelType != null) {
+            val isPremiumUpsell = classDefBy(viewModelType).fields.filter { it.type == "Z" }.getOrNull(1)
+                ?: throw PatchException("Could not find the isPremiumUpsell field in $viewModelType")
 
-        mutableClassDefBy(EXTENSION_CLASS).methods.single { it.name == "isPremiumUpsell" }.apply {
-            removeInstructions(instructions.size)
-            addInstructions(
-                0,
-                """
-                    check-cast p0, $viewModelType
-                    iget-boolean p0, p0, $viewModelType->${isPremiumUpsell.name}:Z
-                    return p0
-                """,
-            )
+            mutableClassDefBy(EXTENSION_CLASS).methods.single { it.name == "isPremiumUpsell" }.apply {
+                removeInstructions(instructions.size)
+                addInstructions(
+                    0,
+                    """
+                        check-cast p0, $viewModelType
+                        iget-boolean p0, p0, $viewModelType->${isPremiumUpsell.name}:Z
+                        return p0
+                    """,
+                )
+            }
         }
 
         val contextMenuViewModel = ContextMenuViewModelToStringFingerprint.classDefOrNull
