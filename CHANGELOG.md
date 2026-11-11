@@ -1,3 +1,13 @@
+## [1.1.0](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.0.1...v1.1.0) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* point the release checks at Spotify 9.1.94.1929 ([26ebae5](https://github.com/Martinikaws/spotify-merged-patches/commit/26ebae5e50d872acdd9099979e01e0d331e1c8e8))
+
+### ✨ New Features
+
+* port the patches to Spotify 9.1.94.1929 ([086fb3f](https://github.com/Martinikaws/spotify-merged-patches/commit/086fb3f5a4bb7197db0be447d38303b2db3903ca))
+
 ## [1.0.1](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.0.0...v1.0.1) (2026-11-10)
 
 ### 🐛 Bug Fixes
