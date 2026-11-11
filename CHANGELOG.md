@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.1.0...v1.1.1) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* find Spotify's onCreate on its Application superclass ([f9b5088](https://github.com/Martinikaws/spotify-merged-patches/commit/f9b5088908e55447b02baad46b3aaed4c5864bfb))
+
 ## [1.1.0](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.0.1...v1.1.0) (2026-11-11)
 
 ### 🐛 Bug Fixes
