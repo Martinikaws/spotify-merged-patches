@@ -10,6 +10,7 @@ import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.spicetify.patches.spotify.settings.NativeSettingsAbi
+import app.spicetify.patches.spotify.settings.applicationMethod
 import app.spicetify.patches.spotify.settings.enableSetting
 import app.spicetify.patches.spotify.settings.settingsPatch
 import app.spicetify.patches.spotify.spotifyCompatibility
@@ -117,9 +118,7 @@ val localFilesFromServerPatch = bytecodePatch(
         }
 
         // Track files are served from their own process; there, Spotify's own start-up is skipped.
-        val application = mutableClassDefBy("Lcom/spotify/music/SpotifyApplication;").methods.single {
-            it.name == "onCreate" && it.parameterTypes.isEmpty() && it.returnType == "V"
-        }
+        val application = applicationMethod("onCreate", emptyList())
         requireScratchRegister(application)
         application.addInstructionsWithLabels(0, """
             invoke-static/range {p0 .. p0}, $SERVER_PROCESS->skipApplication(Landroid/content/Context;)Z
@@ -128,9 +127,7 @@ val localFilesFromServerPatch = bytecodePatch(
             return-void
         """.trimIndent(), ExternalLabel("spotify", application.getInstruction(0)))
         // Spotify's memory callback reads state its skipped start-up would have created.
-        val trimMemory = mutableClassDefBy("Lcom/spotify/music/SpotifyApplication;").methods.single {
-            it.name == "onTrimMemory" && it.parameterTypes == listOf("I") && it.returnType == "V"
-        }
+        val trimMemory = applicationMethod("onTrimMemory", listOf("I"))
         requireScratchRegister(trimMemory)
         trimMemory.addInstructionsWithLabels(0, """
             invoke-static/range {p0 .. p0}, $SERVER_PROCESS->isCurrent(Landroid/content/Context;)Z

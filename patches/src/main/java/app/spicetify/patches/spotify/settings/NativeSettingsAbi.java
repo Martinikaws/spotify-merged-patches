@@ -43,7 +43,7 @@ public final class NativeSettingsAbi {
     public static final List<String> TYPES = Arrays.asList(
         // Spotify 9.1.94.1929: the root page and its DI, the entry model classes SettingsBridge constructs,
         // the renderer and navigator it wraps, and the analytics label constructor.
-        "Lcom/spotify/music/SpotifyApplication;", "Lp/wbs;", "Lp/jsp;", "Lp/vod0;",
+        "Lcom/spotify/music/SpotifyApplication;", "Lp/k1a1;", "Lp/wbs;", "Lp/jsp;", "Lp/vod0;",
         "Lp/y7q;", "Lp/x6q;", "Lp/jeu;", "Lp/l5b0;", "Lp/ssx0;", "Lp/fj0;",
         "Lp/djf0;", "Lp/tbn0;", "Lp/ufo;", "Lp/tfo;", "Lp/rfo;", "Lp/sfo;", "Lp/qra0;",
         "Lp/me30;", "Lp/dhk1;", "Lp/y9x;", "Lp/ugx;", "Lp/ttf;", "Lp/bjf0;",

@@ -7,6 +7,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patcher.util.smali.ExternalLabel
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
@@ -91,10 +92,26 @@ internal val settingsPatch = bytecodePatch {
         """.trimIndent(), ExternalLabel("native_labels", analytics.getInstruction(switch)),
             ExternalLabel("label_sink", analytics.getInstruction(sink)))
 
-        mutableClassDefBy("Lcom/spotify/music/SpotifyApplication;").methods.single { it.name == "onCreate" }
+        applicationMethod("onCreate", emptyList())
             .addInstructions(0,
                 "invoke-static/range {p0 .. p0}, ${EXTENSION}PatchSettings;->initialize(Landroid/content/Context;)V")
     }
+}
+
+/**
+ * Spotify's Application lifecycle method [name], on whichever of its own classes declares it. In Spotify
+ * 9.1.94.1929 `SpotifyApplication` only has a constructor, and its sole superclass `Lp/k1a1;` declares
+ * onCreate and onTrimMemory; in 9.1.80.2221 they were on `SpotifyApplication` itself.
+ */
+internal fun BytecodePatchContext.applicationMethod(name: String, parameters: List<String>): MutableMethod {
+    var type: String? = "Lcom/spotify/music/SpotifyApplication;"
+    while (type != null && type.startsWith("L") && !type.startsWith("Landroid/")) {
+        val definition = classDefByOrNull(type) ?: break
+        definition.methods.firstOrNull { it.name == name && it.parameterTypes == parameters && it.returnType == "V" }
+            ?.let { return mutableClassDefBy(type!!).methods.single { m -> m.name == name && m.parameterTypes == parameters && m.returnType == "V" } }
+        type = definition.superclass
+    }
+    throw PatchException("Spotify's Application no longer declares $name. Use the verified Spotify 9.1.94.1929 APK.")
 }
 
 internal fun BytecodePatchContext.enableSetting(name: String) {
