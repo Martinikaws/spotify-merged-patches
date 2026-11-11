@@ -136,7 +136,7 @@ class VerifyAdsDex {
                         && reference(code.get(index)).equals(PLAYER_HELPER + "->showImageBrandAd(Z)Z")
                         && index >= 2 && index + 3 < code.size()
                         && code.get(index - 2).getOpcode() == Opcode.INVOKE_VIRTUAL
-                        && reference(code.get(index - 2)).equals("Lcom/spotify/scrollsita/v1/Section;->Z()Z")
+                        && reference(code.get(index - 2)).equals("Lcom/spotify/scrollsita/v1/Section;->o0()Z")
                         && code.get(index - 1).getOpcode() == Opcode.MOVE_RESULT
                         && code.get(index).getOpcode() == Opcode.INVOKE_STATIC_RANGE
                         && code.get(index) instanceof RegisterRangeInstruction call
