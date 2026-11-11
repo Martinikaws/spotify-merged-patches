@@ -105,8 +105,9 @@ internal val themeComposePatch = bytecodePatch {
         // from the CompositionLocal's default first. That lambda reads several singletons, whose fields have
         // their own class as type; the palette's holder is the one static whose type is another class.
         val defaults = EncoreThemeDefaultsFingerprint.matchAll(1..1).single().method
+        // Encore's classes are all obfuscated into p/; 9.1.94.1929's lambda also reads Mobius's WorkRunners.
         val darkPalette = defaults.staticReads().map { it.value }.distinct()
-            .singleOrNull { it.type != it.definingClass && it.type.startsWith("L") }
+            .singleOrNull { it.type != it.definingClass && it.type.startsWith("Lp/") && it.definingClass.startsWith("Lp/") }
             ?: throw PatchException("Expected one static read of Spotify's default Encore palette.")
         val paletteType = darkPalette.type
         val provide = Fingerprint(
