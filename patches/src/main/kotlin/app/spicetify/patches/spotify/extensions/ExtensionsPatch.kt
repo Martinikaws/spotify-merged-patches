@@ -23,6 +23,9 @@ import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 import com.android.tools.smali.dexlib2.iface.value.IntEncodedValue
 import java.util.Properties
 
+/** False until the hooks of [extensionsPatch] are re-derived for Spotify 9.1.94.1929. A plain val, so the code after the guard still compiles as reachable. */
+private val extensionsHooksPorted = false
+
 private const val COSMOS_SERVICE = "Lcom/spotify/cosmos/sharedcosmosrouterservice/SharedCosmosRouterService;"
 private const val MENU_BRIDGE = "Lapp/spicetify/extension/spotify/extensions/nativebridge/MenuBridge;"
 private const val HOME_FEEDS = "Lp/qrl;"
@@ -123,7 +126,7 @@ internal val playerBridgePatch = bytecodePatch {
                 it.parameterTypes.getOrNull(1) == "Lcom/spotify/cosmos/servicebasedrouter/RemoteNativeRouter;"
         }
         val index = bridgeHookIndex(constructor.implementation!!.instructions)
-            ?: throw PatchException("Spotify extensions ABI changed: $COSMOS_SERVICE. Use the verified Spotify 9.1.80.2221 APK.")
+            ?: throw PatchException("Spotify extensions ABI changed: $COSMOS_SERVICE. Use the verified Spotify 9.1.94.1929 APK.")
         constructor.addInstructions(index,
             "invoke-static/range {p0 .. p0}, Lapp/spicetify/extension/spotify/extensions/PlayerBridge;->onCosmos(Ljava/lang/Object;)V")
     }
@@ -145,6 +148,13 @@ val extensionsPatch = bytecodePatch(
     dependsOn(settingsPatch, playerBridgePatch)
 
     execute {
+        // Only the player bridge (H1) is ported to Spotify 9.1.94.1929 so far. The menu, Home chip, shuffle
+        // and Hide podcasts hooks below still name 9.1.80.2221 classes and instruction indices, so refuse
+        // here instead of patching unrelated code that happens to reuse one of those names.
+        if (!extensionsHooksPorted) {
+            throw PatchException("Spicetify extensions is not ported to Spotify 9.1.94.1929 yet. Turn this patch off.")
+        }
+
         // The player bridge patch checked, then hooked, the router service before this runs.
         checkSnapshot { it != COSMOS_SERVICE }
 
@@ -277,7 +287,7 @@ val extensionsPatch = bytecodePatch(
 /** Refuses to patch unless each class of the extensions snapshot that [selected] picks has its recorded digest. */
 private fun BytecodePatchContext.checkSnapshot(selected: (String) -> Boolean) {
     val snapshot = Properties().apply {
-        NativeSettingsAbi::class.java.getResourceAsStream("/extensions/9.1.80.2221.properties")!!.use(::load)
+        NativeSettingsAbi::class.java.getResourceAsStream("/extensions/9.1.94.1929.properties")!!.use(::load)
     }
     for (type in snapshot.stringPropertyNames().filter(selected)) {
         val definition = classDefByOrNull(type)
