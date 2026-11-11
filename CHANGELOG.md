@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.1.2...v1.1.3) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* find Encore's default palette among obfuscated classes only ([c3a2b67](https://github.com/Martinikaws/spotify-merged-patches/commit/c3a2b6768426026ecd11b2d779092c95e28d0cab))
+
 ## [1.1.2](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.1.1...v1.1.2) (2026-11-11)
 
 ### 🐛 Bug Fixes
