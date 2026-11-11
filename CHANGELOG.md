@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.1.3...v1.2.0) (2026-11-11)
+
+### ✨ New Features
+
+* port Spicetify extensions to 9.1.94.1929 and add Shuffle+ preset-order toggle ([c4a2ac0](https://github.com/Martinikaws/spotify-merged-patches/commit/c4a2ac0219a173b5f4969f2350a43a3117b1a650))
+
 ## [1.1.3](https://github.com/Martinikaws/spotify-merged-patches/compare/v1.1.2...v1.1.3) (2026-11-11)
 
 ### 🐛 Bug Fixes
