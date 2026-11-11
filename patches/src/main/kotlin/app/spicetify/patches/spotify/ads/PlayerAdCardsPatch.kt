@@ -42,18 +42,20 @@ val playerAdCardsPatch = bytecodePatch(
             it.name == "invoke" && it.parameterTypes == listOf("Ljava/lang/Object;")
         }
         val instructions = method.implementation!!.instructions.toList()
-        val getter = "Lcom/spotify/scrollsita/v1/Section;->q0()Z"
+        // Spotify 9.1.94.1929: Section.Z() tests sectionTypeCase_ == IMAGE_BRAND_AD (30); it was o0() in
+        // 9.1.80.2221. Its true branch reads Section.x(), the ImageBrandAd.
+        val getter = "Lcom/spotify/scrollsita/v1/Section;->Z()Z"
         val matches = instructions.indices.filter {
             (instructions[it] as? ReferenceInstruction)?.reference.toString() == getter
         }
-        if (matches.size != 1 || instructions.getOrNull(matches.single() + 1)?.opcode != Opcode.MOVE_RESULT
-            || instructions.getOrNull(matches.single() + 3)?.opcode != Opcode.IF_EQZ
-        ) {
+        if (matches.size != 1 || instructions.getOrNull(matches.single() + 1)?.opcode != Opcode.MOVE_RESULT) {
             throw PatchException("Expected one Now Playing image-ad mapper in Lp/zwa1;->invoke.")
         }
         val result = matches.single() + 1
         val register = (instructions[result] as OneRegisterInstruction).registerA
-        if ((instructions[result + 2] as OneRegisterInstruction).registerA != register) {
+        // The branch on the result follows directly now; 9.1.80.2221 had one constant load in between.
+        val branch = (result + 1..result + 2).firstOrNull { instructions.getOrNull(it)?.opcode == Opcode.IF_EQZ }
+        if (branch == null || (instructions[branch] as OneRegisterInstruction).registerA != register) {
             throw PatchException("Now Playing image-ad branch changed its result register.")
         }
         method.addInstructions(result + 1, """
